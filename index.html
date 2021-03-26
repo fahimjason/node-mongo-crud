@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Hello World, it's my first time with node and mongodb.</h1>
+    <form action="/addItem" method="post">
+        <input type="text" placeholder="item" name="name">
+        <input type="text" placeholder="price" name="price">
+        <input type="text" placeholder="quantity" name="quantity">
+        <button type="submit">Add Item</button>
+    </form>
+
+    <div id="items"></div>
+
+    <div id="update"></div>
+
+    <script>
+        function loadAllItems() {
+            fetch('http://localhost:3000/items')
+                .then(res => res.json())
+                .then(data => {
+                    const itemsContainer = document.getElementById('items');
+                    itemsContainer.innerHTML = '';
+                    data.forEach(item => {
+                        const p = document.createElement('p');
+                        p.innerHTML = `${item.name} -- price: ${item.price} -- stock: ${item.quantity} 
+                        -- <button onclick="loadItem('${item._id}')"> Update </button>
+                        <button onclick = "deleteItem(event, '${item._id}')" > Delete </button> `;
+                        itemsContainer.appendChild(p);
+                    })
+                })
+        }
+        loadAllItems();
+
+        // Load a single item
+        function loadItem(id) {
+            fetch(`http://localhost:3000/item/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    const updateItem = document.getElementById('update')
+                    updateItem.innerHTML = `
+                    Price: <input type="text" value=${data.price} id="price">
+                    </br>
+                    Stock: <input type="text" value=${data.quantity} id="quantity">
+                    </br>
+                    <button onclick="updateItem('${data._id}')">Update</button>`;
+                })
+        }
+
+
+        // Update an existing item
+        function updateItem(id) {
+            const price = document.getElementById('price').value;
+            const quantity = document.getElementById('quantity').value;
+            const product = { id, quantity, price }
+            fetch(`http://localhost:3000/updateItem/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(product)
+            })
+                .then(res => res.json())
+                .then(result => {
+                    if (result) {
+                        loadAllItems();
+                        document.getElementById('update').innerHTML = '';
+                    }
+                })
+        }
+
+
+
+        // Delete an item
+        function deleteItem(event, id) {
+            fetch(`http://localhost:3000/delete/${id}`, {
+                method: 'DELETE'
+            })
+                .then(res => res.json())
+                .then((result) => {
+                    if (result) {
+                        event.target.parentNode.style.display = 'none';
+                    }
+                })
+        }
+    </script>
+</body>
+
+</html>
