@@ -1,15 +1,14 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 
 const MongoClient = require('mongodb').MongoClient;
 const objectId = require('mongodb').ObjectID
 
-const uri = "mongodb+srv://firstProjectUser:4VKVfCRUtZPdjLAQ@cluster0.4i8kb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = "mongodb+srv://firstProjectUser:4VKVfCRUtZPdjLAQ@cluster0.4i8kb.mongodb.net/firstprojectdb?retryWrites=true&w=majority";
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 const app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html')
